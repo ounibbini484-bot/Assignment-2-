@@ -1,0 +1,114 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f7fa;
+}
+
+.app-container {
+  width: 90%;
+  margin: 20px auto;
+}
+
+/* FORM */
+.form-header {
+  text-align: center;
+}
+
+.form-group {
+  margin: 10px 0;
+}
+
+.form-input, .form-select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+}
+
+.form-actions {
+  margin-top: 10px;
+}
+
+.btn {
+  padding: 8px 12px;
+  margin-right: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn-secondary {
+  background: gray;
+  color: white;
+}
+
+/* TABLE */
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.user-table th {
+  background: #1f4e79;
+  color: white;
+  padding: 10px;
+}
+
+.user-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.user-table tr:nth-child(even) {
+  background: #f2f2f2;
+}
+
+/* ROLE COLORS */
+.admin {
+  color: red;
+  font-weight: bold;
+}
+
+.user {
+  color: blue;
+}
+
+.editor {
+  color: purple;
+}
+
+/* STATUS */
+.active {
+  color: green;
+  font-weight: bold;
+}
+
+/* BUTTONS */
+.edit {
+  background: #00bcd4;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin-right: 5px;
+}
+
+.delete {
+  background: #002f6c;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+}
+
+/* NOTE */
+.note {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.note span {
+  color: red;
+  font-weight: bold;
+}

@@ -1,75 +1,186 @@
-import React from 'react'
-import {useState} from 'react'
+import React, { useState } from "react";
+import "./App.css";
 
 const App = () => {
-  const [count, setCount] = useState(0)
-
   const initialFormState = {
-    fullName : '',
-    email: '',
-    address: '',
-    role: 'User'
+    fullName: "",
+    email: "",
+    address: "",
+    role: "User"
   };
 
-  const [form, setForm] = useState(initialFormState)
+  const [form, setForm] = useState(initialFormState);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [users, setUsers] = useState([]);
 
-  const handleChange = (e) =>{
-    const {name, value} = e.target;
-    setForm(prev => ({
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
       ...prev,
       [name]: value
-    }))
+    }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form Submitted', form);
-    alert(`Registration is successful for ${form.fullName} !`)
-    setForm(initialFormState)
-    
-  }
+
+    const newUser = {
+      id: users.length + 1,
+      fullName: form.fullName,
+      email: form.email,
+      address: form.address,
+      role: form.role,
+      status: "Active"
+    };
+
+    setUsers([...users, newUser]);
+    setIsLoggedIn(true);
+    setForm(initialFormState);
+  };
+
   const handleClear = () => {
     setForm(initialFormState);
-  }
-  
+  };
+
+  const handleDelete = (id) => {
+    const updatedUsers = users.filter((user) => user.id !== id);
+    setUsers(updatedUsers);
+  };
+
   return (
-    <>
-    <main className='app-container'>
+    <main className="app-container">
       <div className="form-header">
         <h1>User Registration</h1>
         <p>Create your new account in seconds</p>
       </div>
+
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="fullName">Full Name</label>
-          <input type="text" id="fullName"className='form-input' name="fullName" value={form.fullName} onChange={handleChange} required placeholder='Enter your full name'/>
+          <label>Full Name</label>
+          <input
+            type="text"
+            className="form-input"
+            name="fullName"
+            value={form.fullName}
+            onChange={handleChange}
+            required
+            placeholder="Enter your full name"
+          />
         </div>
+
         <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input type="text" id="email"className='form-input' name="email" value={form.email} onChange={handleChange} required placeholder='Enter your email'/>
+          <label>Email</label>
+          <input
+            type="email"
+            className="form-input"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            required
+            placeholder="Enter your email"
+          />
         </div>
+
         <div className="form-group">
-          <label htmlFor="address">Address</label>
-          <input type="text" id="address"className='form-input' name="address" value={form.address} onChange={handleChange} required placeholder='Enter your address'/>
+          <label>Address</label>
+          <input
+            type="text"
+            className="form-input"
+            name="address"
+            value={form.address}
+            onChange={handleChange}
+            required
+            placeholder="Enter your address"
+          />
         </div>
+
         <div className="form-group">
-          <label htmlFor="role">Role</label>
-          <select id="role"className='form-select' name="role" value={form.role} onChange={handleChange} required>
+          <label>Role</label>
+          <select
+            className="form-select"
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+            required
+          >
             <option value="Admin">Admin</option>
             <option value="User">User</option>
             <option value="Editor">Editor</option>
             <option value="Guest">Guest</option>
           </select>
         </div>
+
         <div className="form-actions">
-          <button type='button' className='btn btn-secondary' onClick={handleClear}>Clear</button>
-          <button type='submit' className='btn btn-primary'>Submit</button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleClear}
+          >
+            Clear
+          </button>
+
+          <button type="submit" className="btn btn-primary">
+            Submit
+          </button>
         </div>
-
       </form>
-    </main>
-    </>
-  )
-}
 
-export default App
+      {isLoggedIn && (
+        <>
+          <hr />
+
+          <h2>User List</h2>
+
+          <table className="user-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {users.map((user, index) => (
+                <tr key={user.id}>
+                  <td>{index + 1}</td>
+                  <td>{user.fullName}</td>
+                  <td>
+                    <a href="#">{user.email}</a>
+                  </td>
+                  <td>000-0000</td>
+                  <td className={user.role.toLowerCase()}>
+                    {user.role}
+                  </td>
+                  <td className="active">{user.status}</td>
+                  <td>
+                    <button className="edit">Edit</button>
+
+                    <button
+                      className="delete"
+                      onClick={() => handleDelete(user.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <p className="note">
+            <span>E</span> = Edit / Update &nbsp;&nbsp;&nbsp;
+            <span>D</span> = Delete Record &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;
+            All actions call their respective API endpoints.
+          </p>
+        </>
+      )}
+    </main>
+  );
+};
+
+export default App;
