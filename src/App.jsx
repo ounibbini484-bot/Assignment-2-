@@ -59,17 +59,36 @@ const App = () => {
       setUsers([]);
     }
   };
-
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    const searchBackend = async () => {
+      if (searchQuery.trim() === "") {
+        fetchUsers();
+        return;
+      }
+      try {
+        const response = await axios.get(`http://localhost:8081/api/users/search?name=${searchQuery}&email=${searchQuery}`);
+        const formattedUsers = (response.data.users || []).map(u => ({
+          id: u._id,
+          fullName: u.name,
+          email: u.email,
+          phone: u.phone,
+          address: u.address,
+          role: u.role,
+          status: u.status
+        }));
+        setUsers(formattedUsers);
+      } catch (error) {
+        console.error("Error searching users:", error);
+        setUsers([]);
+      }
+    };
 
-  const filteredUsers = users.filter((user) =>
-    user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.phone.toLowerCase().includes(searchQuery.toLowerCase())
-   
-  );
+    const timeoutId = setTimeout(() => {
+      searchBackend();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -341,8 +360,8 @@ const App = () => {
               </thead>
 
               <tbody>
-                {filteredUsers.length > 0 ? (
-                  filteredUsers.map((user, index) => (
+                {users.length > 0 ? (
+                  users.map((user, index) => (
                     <tr key={user.id}>
                       <td>{index + 1}</td>
                       <td>
