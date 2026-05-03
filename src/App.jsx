@@ -6,7 +6,9 @@ const App = () => {
     fullName: "",
     email: "",
     address: "",
-    role: "User"
+    role: "User",
+    phone: "",
+    status: "Active"
   };
 
   const [form, setForm] = useState(initialFormState);
@@ -30,7 +32,8 @@ const App = () => {
       email: form.email,
       address: form.address,
       role: form.role,
-      status: "Active"
+      phone: form.phone,
+      status: form.status
     };
 
     setUsers([...users, newUser]);
@@ -82,6 +85,19 @@ const App = () => {
         </div>
 
         <div className="form-group">
+          <label>Phone</label>
+          <input
+            type="text"
+            className="form-input"
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+            required
+            placeholder="Enter your phone"
+          />
+        </div>
+
+        <div className="form-group">
           <label>Address</label>
           <input
             type="text"
@@ -107,6 +123,20 @@ const App = () => {
             <option value="User">User</option>
             <option value="Editor">Editor</option>
             <option value="Guest">Guest</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Status</label>
+          <select
+            className="form-select"
+            name="status"
+            value={form.status}
+            onChange={handleChange}
+            required
+          >
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
           </select>
         </div>
 
@@ -152,7 +182,7 @@ const App = () => {
                   <td>
                     <a href="#">{user.email}</a>
                   </td>
-                  <td>000-0000</td>
+                  <td>{user.phone}</td>
                   <td className={user.role.toLowerCase()}>
                     {user.role}
                   </td>
