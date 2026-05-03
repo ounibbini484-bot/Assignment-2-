@@ -12,8 +12,16 @@ const App = () => {
   };
 
   const [form, setForm] = useState(initialFormState);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [users, setUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredUsers = users.filter((user) =>
+    user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.phone.toLowerCase().includes(searchQuery.toLowerCase())
+   
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,7 +45,7 @@ const App = () => {
     };
 
     setUsers([...users, newUser]);
-    setIsLoggedIn(true);
+    // setIsLoggedIn(true);
     setForm(initialFormState);
   };
 
@@ -155,11 +163,20 @@ const App = () => {
         </div>
       </form>
 
-      {isLoggedIn && (
         <>
           <hr />
-
           <h2>User List</h2>
+
+          <div className="search-bar-container">
+            <input type="text" 
+            className = "search-input"
+            placeholder="Search by name or email address"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button className="btn-search">Search</button>
+            <button className="btn-reset" onClick = { () => setSearchQuery("")}>Clear</button>
+          </div>
 
           <table className="user-table">
             <thead>
@@ -175,7 +192,7 @@ const App = () => {
             </thead>
 
             <tbody>
-              {users.map((user, index) => (
+              {filteredUsers.length > 0 && filteredUsers.map((user, index) => (
                 <tr key={user.id}>
                   <td>{index + 1}</td>
                   <td>{user.fullName}</td>
@@ -199,6 +216,13 @@ const App = () => {
                   </td>
                 </tr>
               ))}
+              {
+                filteredUsers.length === 0 && (
+                  <tr>
+                    <td colSpan="7" className="no-record">No Records Found</td>
+                  </tr>
+                )
+              }
             </tbody>
           </table>
 
@@ -208,7 +232,7 @@ const App = () => {
             All actions call their respective API endpoints.
           </p>
         </>
-      )}
+      {/* )} */}
     </main>
   );
 };
