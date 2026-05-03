@@ -3,16 +3,23 @@
 :root {
   --primary-color: #4f46e5;
   --primary-hover: #4338ca;
-  --secondary-color: #e5e7eb;
-  --secondary-hover: #d1d5db;
-  --bg-gradient-start: #f3f4f6;
-  --bg-gradient-end: #e5e7eb;
-  --text-main: #111827;
-  --text-muted: #6b7280;
+  --secondary-color: #f3f4f6;
+  --secondary-hover: #e5e7eb;
+  --danger-color: #ef4444;
+  --danger-hover: #dc2626;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --info-color: #3b82f6;
+
+  --bg-gradient-start: #f8fafc;
+  --bg-gradient-end: #f1f5f9;
   --surface: #ffffff;
-  --border: #d1d5db;
+  
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
   --ring: rgba(79, 70, 229, 0.3);
-  --error: #ef4444;
+  
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -32,68 +39,16 @@ body {
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
   padding: 2rem;
   -webkit-font-smoothing: antialiased;
 }
 
-.app-container {
-  background: var(--surface);
-  border-radius: 1rem;
-  box-shadow: var(--shadow-xl);
-  width: 100%;
-  max-width: 480px;
-  padding: 2.5rem;
-  animation: slideUp 0.5s ease-out forwards;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.form-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.form-header h1 {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--text-main);
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.025em;
-}
-
-.form-header p {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-group label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: var(--text-main);
-}
-
+/* Base Inputs */
 .form-input,
 .form-select {
   width: 100%;
   padding: 0.75rem 1rem;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-family: inherit;
   color: var(--text-main);
   background-color: var(--surface);
@@ -109,7 +64,7 @@ body {
 
 .form-input:hover,
 .form-select:hover {
-  border-color: #9ca3af;
+  border-color: #94a3b8;
 }
 
 .form-input:focus,
@@ -119,17 +74,11 @@ body {
   box-shadow: 0 0 0 3px var(--ring);
 }
 
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
+/* Base Buttons */
 .btn {
-  flex: 1;
   padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 600;
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
@@ -159,8 +108,32 @@ body {
 .btn-secondary {
   background-color: var(--secondary-color);
   color: var(--text-main);
+  border: 1px solid var(--border);
 }
 
 .btn-secondary:hover {
   background-color: var(--secondary-hover);
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background: var(--secondary-color);
+  color: var(--text-main);
+}
+
+.btn-icon svg {
+  width: 18px;
+  height: 18px;
 }
