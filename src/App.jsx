@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import "./App.css";
+import * as api from "./services/api.jsx";
+import UserForm from "./components/UserForm.jsx";
+import UserTable from "./components/UserTable.jsx";
+import SearchBar from "./components/SearchBar.jsx";
 
 const App = () => {
   const initialFormState = {
@@ -20,7 +23,7 @@ const App = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:8081/api/users");
+      const response = await api.getUsers();
       const formattedUsers = response.data.users.map(u => ({
         id: u._id,
         fullName: u.name,
@@ -39,7 +42,7 @@ const App = () => {
   const handleSearchById = async () => {
     if (!searchId.trim()) return;
     try {
-      const response = await axios.get(`http://localhost:8081/api/users/${searchId}`);
+      const response = await api.getUserById(searchId);
       const u = response.data.user;
       if (u) {
         const formattedUser = {
@@ -59,6 +62,7 @@ const App = () => {
       setUsers([]);
     }
   };
+
   useEffect(() => {
     const searchBackend = async () => {
       if (searchQuery.trim() === "") {
@@ -66,7 +70,7 @@ const App = () => {
         return;
       }
       try {
-        const response = await axios.get(`http://localhost:8081/api/users/search?name=${searchQuery}&email=${searchQuery}`);
+        const response = await api.searchUsers(searchQuery);
         const formattedUsers = (response.data.users || []).map(u => ({
           id: u._id,
           fullName: u.name,
@@ -103,7 +107,7 @@ const App = () => {
 
     try {
       if (editingUserId) {
-        const response = await axios.put(`http://localhost:8081/api/users/${editingUserId}`, {
+        const response = await api.updateUser(editingUserId, {
           name: form.fullName,
           email: form.email,
           address: form.address,
@@ -126,7 +130,7 @@ const App = () => {
         setUsers(users.map(user => user.id === editingUserId ? updatedUser : user));
         setEditingUserId(null);
       } else {
-        const response = await axios.post("http://localhost:8081/api/users", {
+        const response = await api.createUser({
           name: form.fullName,
           email: form.email,
           address: form.address,
@@ -173,7 +177,7 @@ const App = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8081/api/users/${id}`);
+      await api.deleteUser(id);
       const updatedUsers = users.filter((user) => user.id !== id);
       setUsers(updatedUsers);
     } catch (error) {
@@ -189,115 +193,13 @@ const App = () => {
       </header>
 
       <div className="dashboard-grid">
-        <section className="dashboard-panel form-panel">
-          <div className="panel-header">
-            <h2>{editingUserId ? "Edit User" : "Add New User"}</h2>
-            <p>{editingUserId ? "Update user details" : "Enter details to register a new user"}</p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="user-form">
-            <div className="form-row">
-              <div className="form-group">
-                <label>Full Name</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  name="fullName"
-                  value={form.fullName}
-                  onChange={handleChange}
-                  required
-                  placeholder="e.g. John Doe"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  className="form-input"
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  required
-                  placeholder="e.g. john@example.com"
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Phone</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  required
-                  placeholder="e.g. +1 234 567 8900"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Address</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  name="address"
-                  value={form.address}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter full address"
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Role</label>
-                <select
-                  className="form-select"
-                  name="role"
-                  value={form.role}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="Admin">Admin</option>
-                  <option value="User">User</option>
-                  <option value="Editor">Editor</option>
-                  <option value="Guest">Guest</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Status</label>
-                <select
-                  className="form-select"
-                  name="status"
-                  value={form.status}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="form-actions">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleClear}
-              >
-                Clear Form
-              </button>
-              <button type="submit" className="btn btn-primary">
-                {editingUserId ? "Update User" : "Register User"}
-              </button>
-            </div>
-          </form>
-        </section>
+        <UserForm 
+          form={form}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          handleClear={handleClear}
+          editingUserId={editingUserId}
+        />
 
         <section className="dashboard-panel list-panel">
           <div className="panel-header list-header-flex">
@@ -306,113 +208,21 @@ const App = () => {
               <p>View and manage registered users</p>
             </div>
             
-            <div className="search-bar-container" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <div className="search-input-wrapper">
-                <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input 
-                  type="text" 
-                  className="search-input"
-                  placeholder="Filter users..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              
-              <div className="search-input-wrapper" style={{ display: 'flex', alignItems: 'center' }}>
-                <input 
-                  type="text" 
-                  className="search-input"
-                  placeholder="Fetch by ID..."
-                  value={searchId}
-                  onChange={(e) => setSearchId(e.target.value)}
-                  style={{ borderRadius: '4px 0 0 4px', borderRight: 'none' }}
-                />
-                <button 
-                  className="btn btn-primary" 
-                  onClick={handleSearchById}
-                  style={{ borderRadius: '0 4px 4px 0', padding: '0.4rem 0.8rem', height: '100%', whiteSpace: 'nowrap' }}
-                >
-                  Find
-                </button>
-              </div>
-              <button 
-                className="btn-icon" 
-                onClick={() => { setSearchQuery(""); setSearchId(""); fetchUsers(); }} 
-                title="Reset All Filters"
-                style={{ padding: '0.5rem' }}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
-              </button>
-            </div>
+            <SearchBar 
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              searchId={searchId}
+              setSearchId={setSearchId}
+              handleSearchById={handleSearchById}
+              fetchUsers={fetchUsers}
+            />
           </div>
 
-          <div className="table-responsive">
-            <table className="user-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Full Name & Address</th>
-                  <th>Contact Info</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {users.length > 0 ? (
-                  users.map((user, index) => (
-                    <tr key={user.id}>
-                      <td>{index + 1}</td>
-                      <td>
-                        <div className="user-name">{user.fullName}</div>
-                        <div className="user-address">{user.address}</div>
-                      </td>
-                      <td>
-                        <div className="user-email">
-                          <a href={`mailto:${user.email}`}>{user.email}</a>
-                        </div>
-                        <div className="user-phone">{user.phone}</div>
-                      </td>
-                      <td>
-                        <span className={`role-badge role-${user.role.toLowerCase()}`}>
-                          {user.role}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`status-badge status-${user.status.toLowerCase()}`}>
-                          {user.status}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          <button className="btn-action edit" title="Edit User" onClick={() => handleEditClick(user)}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                          </button>
-                          <button
-                            className="btn-action delete"
-                            onClick={() => handleDelete(user.id)}
-                            title="Delete User"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="no-record">
-                      <div className="empty-state">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <p>No users found matching your search criteria.</p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <UserTable 
+            users={users}
+            handleEditClick={handleEditClick}
+            handleDelete={handleDelete}
+          />
         </section>
       </div>
     </main>
