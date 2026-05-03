@@ -16,6 +16,7 @@ const App = () => {
   const [editingUserId, setEditingUserId] = useState(null);
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchId, setSearchId] = useState("");
 
   const fetchUsers = async () => {
     try {
@@ -32,6 +33,30 @@ const App = () => {
       setUsers(formattedUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
+    }
+  };
+
+  const handleSearchById = async () => {
+    if (!searchId.trim()) return;
+    try {
+      const response = await axios.get(`http://localhost:8081/api/users/${searchId}`);
+      const u = response.data.user;
+      if (u) {
+        const formattedUser = {
+          id: u._id,
+          fullName: u.name,
+          email: u.email,
+          phone: u.phone,
+          address: u.address,
+          role: u.role,
+          status: u.status
+        };
+        setUsers([formattedUser]);
+      }
+    } catch (error) {
+      console.error("Error fetching user by ID:", error);
+      alert("User not found or error occurred");
+      setUsers([]);
     }
   };
 
@@ -262,22 +287,43 @@ const App = () => {
               <p>View and manage registered users</p>
             </div>
             
-            <div className="search-bar-container">
+            <div className="search-bar-container" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               <div className="search-input-wrapper">
                 <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <input 
                   type="text" 
                   className="search-input"
-                  placeholder="Search users..."
+                  placeholder="Filter users..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              {searchQuery && (
-                <button className="btn-icon" onClick={() => setSearchQuery("")} title="Clear Search">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              
+              <div className="search-input-wrapper" style={{ display: 'flex', alignItems: 'center' }}>
+                <input 
+                  type="text" 
+                  className="search-input"
+                  placeholder="Fetch by ID..."
+                  value={searchId}
+                  onChange={(e) => setSearchId(e.target.value)}
+                  style={{ borderRadius: '4px 0 0 4px', borderRight: 'none' }}
+                />
+                <button 
+                  className="btn btn-primary" 
+                  onClick={handleSearchById}
+                  style={{ borderRadius: '0 4px 4px 0', padding: '0.4rem 0.8rem', height: '100%', whiteSpace: 'nowrap' }}
+                >
+                  Find
                 </button>
-              )}
+              </div>
+              <button 
+                className="btn-icon" 
+                onClick={() => { setSearchQuery(""); setSearchId(""); fetchUsers(); }} 
+                title="Reset All Filters"
+                style={{ padding: '0.5rem' }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+              </button>
             </div>
           </div>
 
