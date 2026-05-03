@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./App.css";
 
 const App = () => {
@@ -16,6 +17,28 @@ const App = () => {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("http://localhost:8081/api/users");
+      const formattedUsers = response.data.users.map(u => ({
+        id: u._id,
+        fullName: u.name,
+        email: u.email,
+        phone: u.phone,
+        address: u.address,
+        role: u.role,
+        status: u.status
+      }));
+      setUsers(formattedUsers);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
   const filteredUsers = users.filter((user) =>
     user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -31,22 +54,35 @@ const App = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newUser = {
-      id: users.length + 1,
-      fullName: form.fullName,
-      email: form.email,
-      address: form.address,
-      role: form.role,
-      phone: form.phone,
-      status: form.status
-    };
+    try {
+      const response = await axios.post("http://localhost:8081/api/users", {
+        name: form.fullName,
+        email: form.email,
+        address: form.address,
+        role: form.role,
+        phone: form.phone,
+        status: form.status.toLowerCase()
+      });
 
-    setUsers([...users, newUser]);
-    // setIsLoggedIn(true);
-    setForm(initialFormState);
+      const u = response.data.user;
+      const newUser = {
+        id: u._id,
+        fullName: u.name,
+        email: u.email,
+        address: u.address,
+        role: u.role,
+        phone: u.phone,
+        status: u.status
+      };
+
+      setUsers([...users, newUser]);
+      setForm(initialFormState);
+    } catch (error) {
+      console.error("Error creating user:", error);
+    }
   };
 
   const handleClear = () => {
