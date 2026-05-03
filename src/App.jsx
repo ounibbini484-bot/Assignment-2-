@@ -13,7 +13,7 @@ const App = () => {
   };
 
   const [form, setForm] = useState(initialFormState);
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [editingUserId, setEditingUserId] = useState(null);
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -58,35 +58,73 @@ const App = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:8081/api/users", {
-        name: form.fullName,
-        email: form.email,
-        address: form.address,
-        role: form.role,
-        phone: form.phone,
-        status: form.status.toLowerCase()
-      });
+      if (editingUserId) {
+        const response = await axios.put(`http://localhost:8081/api/users/${editingUserId}`, {
+          name: form.fullName,
+          email: form.email,
+          address: form.address,
+          role: form.role,
+          phone: form.phone,
+          status: form.status.toLowerCase()
+        });
 
-      const u = response.data.user;
-      const newUser = {
-        id: u._id,
-        fullName: u.name,
-        email: u.email,
-        address: u.address,
-        role: u.role,
-        phone: u.phone,
-        status: u.status
-      };
+        const u = response.data.user;
+        const updatedUser = {
+          id: u._id,
+          fullName: u.name,
+          email: u.email,
+          address: u.address,
+          role: u.role,
+          phone: u.phone,
+          status: u.status
+        };
 
-      setUsers([...users, newUser]);
+        setUsers(users.map(user => user.id === editingUserId ? updatedUser : user));
+        setEditingUserId(null);
+      } else {
+        const response = await axios.post("http://localhost:8081/api/users", {
+          name: form.fullName,
+          email: form.email,
+          address: form.address,
+          role: form.role,
+          phone: form.phone,
+          status: form.status.toLowerCase()
+        });
+
+        const u = response.data.user;
+        const newUser = {
+          id: u._id,
+          fullName: u.name,
+          email: u.email,
+          address: u.address,
+          role: u.role,
+          phone: u.phone,
+          status: u.status
+        };
+
+        setUsers([...users, newUser]);
+      }
       setForm(initialFormState);
     } catch (error) {
-      console.error("Error creating user:", error);
+      console.error("Error saving user:", error);
     }
   };
 
   const handleClear = () => {
     setForm(initialFormState);
+    setEditingUserId(null);
+  };
+
+  const handleEditClick = (user) => {
+    setForm({
+      fullName: user.fullName,
+      email: user.email,
+      address: user.address,
+      role: user.role,
+      phone: user.phone,
+      status: user.status.charAt(0).toUpperCase() + user.status.slice(1)
+    });
+    setEditingUserId(user.id);
   };
 
   const handleDelete = async (id) => {
@@ -109,8 +147,8 @@ const App = () => {
       <div className="dashboard-grid">
         <section className="dashboard-panel form-panel">
           <div className="panel-header">
-            <h2>Add New User</h2>
-            <p>Enter details to register a new user</p>
+            <h2>{editingUserId ? "Edit User" : "Add New User"}</h2>
+            <p>{editingUserId ? "Update user details" : "Enter details to register a new user"}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="user-form">
@@ -211,7 +249,7 @@ const App = () => {
                 Clear Form
               </button>
               <button type="submit" className="btn btn-primary">
-                Register User
+                {editingUserId ? "Update User" : "Register User"}
               </button>
             </div>
           </form>
@@ -283,7 +321,7 @@ const App = () => {
                       </td>
                       <td>
                         <div className="action-buttons">
-                          <button className="btn-action edit" title="Edit User">
+                          <button className="btn-action edit" title="Edit User" onClick={() => handleEditClick(user)}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                           </button>
                           <button
