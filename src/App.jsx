@@ -89,9 +89,14 @@ const App = () => {
     setForm(initialFormState);
   };
 
-  const handleDelete = (id) => {
-    const updatedUsers = users.filter((user) => user.id !== id);
-    setUsers(updatedUsers);
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8081/api/users/${id}`);
+      const updatedUsers = users.filter((user) => user.id !== id);
+      setUsers(updatedUsers);
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
   };
 
   return (
